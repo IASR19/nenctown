@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Emotion Analysis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            text-align: center;
+            padding: 50px;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Emotion Analysis</h1>
+        <video id="video" width="640" height="480" autoplay></video>
+        <br>
+        <button id="capture">Capture Photo</button>
+        <br><br>
+        <input type="file" id="fileUpload">
+        <button id="upload">Upload Photo</button>
+        <br><br>
+        <canvas id="canvas" width="640" height="480" class="hidden"></canvas>
+        <br><br>
+        <div id="progress" class="hidden">Processing...</div>
+        <div id="result" class="hidden"></div>
+        <br>
+        <button id="analyze" class="hidden">Get Result</button>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureButton = document.getElementById('capture');
+        const fileUpload = document.getElementById('fileUpload');
+        const uploadButton = document.getElementById('upload');
+        const progressDiv = document.getElementById('progress');
+        const resultDiv = document.getElementById('result');
+        const analyzeButton = document.getElementById('analyze');
+        let currentFilename = '';
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            });
+
+        captureButton.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            canvas.toBlob(blob => {
+                const formData = new FormData();
+                formData.append('file', blob, 'photo.jpg');
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    currentFilename = data.filename;
+                    analyzeButton.classList.remove('hidden');
+                    progressDiv.textContent = 'Photo captured and ready for analysis.';
+                    progressDiv.classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    progressDiv.textContent = 'Error capturing photo.';
+                    progressDiv.classList.remove('hidden');
+                });
+            });
+        });
+
+        uploadButton.addEventListener('click', () => {
+            const file = fileUpload.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('file', file);
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    currentFilename = data.filename;
+                    analyzeButton.classList.remove('hidden');
+                    progressDiv.textContent = 'Photo uploaded and ready for analysis.';
+                    progressDiv.classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    progressDiv.textContent = 'Error uploading photo.';
+                    progressDiv.classList.remove('hidden');
+                });
+            }
+        });
+
+        analyzeButton.addEventListener('click', () => {
+            progressDiv.textContent = 'Analyzing photo...';
+            fetch(`/analyze/${currentFilename}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.emotion) {
+                        resultDiv.textContent = `Emotion detected: ${data.emotion}`;
+                    } else if (data.error) {
+                        resultDiv.textContent = `Error: ${data.error}`;
+                    }
+                    progressDiv.classList.add('hidden');
+                    resultDiv.classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    resultDiv.textContent = 'Error analyzing photo.';
+                    progressDiv.classList.add('hidden');
+                    resultDiv.classList.remove('hidden');
+                });
+        });
+    </script>
+</body>
+</html>
