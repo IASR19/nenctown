@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Emotion Analysis</title>
+    <title>Análise de Emoções</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -23,20 +23,20 @@
 </head>
 <body>
     <div class="container">
-        <h1>Emotion Analysis</h1>
+        <h1>Análise de Emoções</h1>
         <video id="video" width="640" height="480" autoplay></video>
         <br>
-        <button id="capture">Capture Photo</button>
+        <button id="capture">Capturar Foto</button>
         <br><br>
         <input type="file" id="fileUpload">
-        <button id="upload">Upload Photo</button>
+        <button id="upload">Enviar Foto</button>
         <br><br>
         <canvas id="canvas" width="640" height="480" class="hidden"></canvas>
         <br><br>
-        <div id="progress" class="hidden">Processing...</div>
+        <div id="progress" class="hidden">Processando...</div>
         <div id="result" class="hidden"></div>
         <br>
-        <button id="analyze" class="hidden">Get Result</button>
+        <button id="analyze" class="hidden">Obter Resultado</button>
     </div>
 
     <script>
@@ -69,12 +69,12 @@
                 .then(data => {
                     currentFilename = data.filename;
                     analyzeButton.classList.remove('hidden');
-                    progressDiv.textContent = 'Photo captured and ready for analysis.';
+                    progressDiv.textContent = 'Foto capturada e pronta para análise.';
                     progressDiv.classList.remove('hidden');
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    progressDiv.textContent = 'Error capturing photo.';
+                    console.error('Erro:', error);
+                    progressDiv.textContent = 'Erro ao capturar foto.';
                     progressDiv.classList.remove('hidden');
                 });
             });
@@ -93,33 +93,33 @@
                 .then(data => {
                     currentFilename = data.filename;
                     analyzeButton.classList.remove('hidden');
-                    progressDiv.textContent = 'Photo uploaded and ready for analysis.';
+                    progressDiv.textContent = 'Foto enviada e pronta para análise.';
                     progressDiv.classList.remove('hidden');
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    progressDiv.textContent = 'Error uploading photo.';
+                    console.error('Erro:', error);
+                    progressDiv.textContent = 'Erro ao enviar foto.';
                     progressDiv.classList.remove('hidden');
                 });
             }
         });
 
         analyzeButton.addEventListener('click', () => {
-            progressDiv.textContent = 'Analyzing photo...';
+            progressDiv.textContent = 'Analisando foto...';
             fetch(`/analyze/${currentFilename}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.emotion) {
-                        resultDiv.textContent = `Emotion detected: ${data.emotion}`;
+                        resultDiv.textContent = `Emoção detectada: ${data.emotion}`;
                     } else if (data.error) {
-                        resultDiv.textContent = `Error: ${data.error}`;
+                        resultDiv.textContent = `Erro: ${data.error}`;
                     }
                     progressDiv.classList.add('hidden');
                     resultDiv.classList.remove('hidden');
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    resultDiv.textContent = 'Error analyzing photo.';
+                    console.error('Erro:', error);
+                    resultDiv.textContent = 'Erro ao analisar foto.';
                     progressDiv.classList.add('hidden');
                     resultDiv.classList.remove('hidden');
                 });

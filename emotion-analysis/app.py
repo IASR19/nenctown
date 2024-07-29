@@ -1,6 +1,5 @@
 import os
-import shutil
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 from deepface import DeepFace
 
@@ -24,8 +23,7 @@ emotion_translation = {
 }
 
 def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def get_unique_filename(directory, filename):
     base, extension = os.path.splitext(filename)
@@ -58,12 +56,19 @@ def analyze_file(filename):
         return jsonify(error='File not found'), 404
     try:
         analysis = DeepFace.analyze(img_path=filepath, actions=['emotion'])
-        # Access the first dictionary in the analysis list
         emotion = analysis[0]['dominant_emotion']
         emotion_pt = emotion_translation.get(emotion, emotion)
         return jsonify(emotion=emotion_pt)
     except Exception as e:
         return jsonify(error=str(e)), 500
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+@app.route('/')
+def serve_index():
+    return app.send_static_file('index.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
