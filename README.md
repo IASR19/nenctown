@@ -3,16 +3,6 @@
 ## Descrição
 Este é um sistema de análise de emoções que permite aos usuários tirar fotos com a webcam ou fazer upload de imagens para detectar emoções. As emoções detectadas são traduzidas para o português e exibidas na interface.
 
-## Estrutura do Projeto
-emotion-analysis-app/
-emotion-analysis-backend/
-├── uploads/
-├── env/
-├── app.py
-├── requirements.txt
-├── static/
-
-
 
 ## Pré-requisitos
 
@@ -86,7 +76,7 @@ O backend estará rodando em [http://127.0.0.1:5000](http://127.0.0.1:5000).
 
 ## Autor
 
-- Desenvolvido por [Itamar Ribeiro]
+- Desenvolvido por Itamar Ribeiro
 
 
 
