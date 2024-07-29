@@ -11,7 +11,7 @@ Este é um sistema de análise de emoções que permite aos usuários tirar foto
 
 ## Instruções para Rodar a Aplicação
 
-### Configuração do Backend
+### Configuração
 
 1. **Clone o repositório**
 
@@ -31,21 +31,8 @@ Este é um sistema de análise de emoções que permite aos usuários tirar foto
     python3 app.py
     ```
 
-O backend estará rodando em [http://127.0.0.1:5000](http://127.0.0.1:5000).
+Rodando em [http://127.0.0.1:5000](http://127.0.0.1:5000).
 
-### Configuração do Frontend
-
-1. **Navegue até o diretório principal do projeto**
-    ```bash
-    cd ..
-    ```
-
-2. **Abra o arquivo `index.html` no navegador**
-    - Você pode simplesmente abrir o arquivo `index.html` diretamente no navegador.
-    - Alternativamente, você pode usar um servidor HTTP simples, como o `http-server` do Node.js:
-      ```bash
-      npx http-server .
-      ```
 
 ## Funcionalidades
 
