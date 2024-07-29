@@ -8,7 +8,6 @@ Este é um sistema de análise de emoções que permite aos usuários tirar foto
 
 - Python 3.9 ou superior
 - pip (Python package installer)
-- Node.js (para servir o frontend, opcional)
 
 ## Instruções para Rodar a Aplicação
 
