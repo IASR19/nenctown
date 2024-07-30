@@ -70,5 +70,20 @@ def uploaded_file(filename):
 def serve_index():
     return app.send_static_file('index.html')
 
+@app.route('/analyze-all', methods=['GET'])
+def analyze_all_files():
+    emotions_count = {emotion: 0 for emotion in emotion_translation.values()}
+    for filename in os.listdir(app.config['UPLOAD_FOLDER']):
+        if allowed_file(filename):
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            try:
+                analysis = DeepFace.analyze(img_path=filepath, actions=['emotion'])
+                emotion = analysis[0]['dominant_emotion']
+                emotion_pt = emotion_translation.get(emotion, emotion)
+                emotions_count[emotion_pt] += 1
+            except Exception as e:
+                return jsonify(error=str(e)), 500
+    return jsonify(emotions=emotions_count)
+
 if __name__ == '__main__':
     app.run(debug=True)
