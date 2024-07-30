@@ -20,9 +20,9 @@
             display: none;
         }
         .chart-container {
-            width: 640px;
-            height: 480px;
-            margin-top: 20px;
+            position: relative;
+            height: 400px;
+            width: 100%;
         }
     </style>
 </head>
@@ -43,10 +43,12 @@
         <br>
         <button id="analyze" class="hidden">Obter Resultado</button>
         <br><br>
-        <button id="analyze-all">Analisar Todas as Fotos</button>
-        <div id="chart" class="chart-container hidden">
-            <canvas id="emotionChart"></canvas>
+        <button id="analyzeAll">Analisar Todas as Fotos</button>
+        <div class="chart-container">
+            <canvas id="emotionChart" class="hidden"></canvas>
         </div>
+        <br>
+        <button id="reload" class="hidden">Recarregar</button>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -59,8 +61,9 @@
         const progressDiv = document.getElementById('progress');
         const resultDiv = document.getElementById('result');
         const analyzeButton = document.getElementById('analyze');
-        const analyzeAllButton = document.getElementById('analyze-all');
-        const chartContainer = document.getElementById('chart');
+        const analyzeAllButton = document.getElementById('analyzeAll');
+        const emotionChart = document.getElementById('emotionChart');
+        const reloadButton = document.getElementById('reload');
         let currentFilename = '';
 
         navigator.mediaDevices.getUserMedia({ video: true })
@@ -144,58 +147,42 @@
             fetch('/analyze-all')
                 .then(response => response.json())
                 .then(data => {
-                    if (data.emotions) {
-                        const ctx = document.getElementById('emotionChart').getContext('2d');
-                        const chartData = {
-                            labels: Object.keys(data.emotions),
+                    const emotions = data.emotions;
+                    const labels = Object.keys(emotions);
+                    const counts = Object.values(emotions);
+                    const ctx = emotionChart.getContext('2d');
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
                             datasets: [{
-                                label: 'Emoções Detectadas',
-                                data: Object.values(data.emotions),
-                                backgroundColor: [
-                                    'rgba(255, 99, 132, 0.2)',
-                                    'rgba(54, 162, 235, 0.2)',
-                                    'rgba(255, 206, 86, 0.2)',
-                                    'rgba(75, 192, 192, 0.2)',
-                                    'rgba(153, 102, 255, 0.2)',
-                                    'rgba(255, 159, 64, 0.2)',
-                                    'rgba(199, 199, 199, 0.2)'
-                                ],
-                                borderColor: [
-                                    'rgba(255, 99, 132, 1)',
-                                    'rgba(54, 162, 235, 1)',
-                                    'rgba(255, 206, 86, 1)',
-                                    'rgba(75, 192, 192, 1)',
-                                    'rgba(153, 102, 255, 1)',
-                                    'rgba(255, 159, 64, 1)',
-                                    'rgba(199, 199, 199, 1)'
-                                ],
+                                label: 'Quantidade de Emoções',
+                                data: counts,
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
                                 borderWidth: 1
                             }]
-                        };
-                        new Chart(ctx, {
-                            type: 'bar',
-                            data: chartData,
-                            options: {
-                                scales: {
-                                    y: {
-                                        beginAtZero: true
-                                    }
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
                                 }
                             }
-                        });
-                        chartContainer.classList.remove('hidden');
-                    } else if (data.error) {
-                        resultDiv.textContent = `Erro: ${data.error}`;
-                        resultDiv.classList.remove('hidden');
-                    }
+                        }
+                    });
+                    emotionChart.classList.remove('hidden');
                     progressDiv.classList.add('hidden');
+                    reloadButton.classList.remove('hidden');
                 })
                 .catch(error => {
                     console.error('Erro:', error);
-                    resultDiv.textContent = 'Erro ao analisar fotos.';
-                    progressDiv.classList.add('hidden');
-                    resultDiv.classList.remove('hidden');
+                    progressDiv.textContent = 'Erro ao analisar todas as fotos.';
                 });
+        });
+
+        reloadButton.addEventListener('click', () => {
+            location.reload();
         });
     </script>
 </body>
