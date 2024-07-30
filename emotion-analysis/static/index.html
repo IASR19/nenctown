@@ -19,17 +19,12 @@
         .hidden {
             display: none;
         }
-        .chart-container {
-            position: relative;
-            height: 400px;
-            width: 100%;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Análise de Emoções</h1>
-        <video id="video" width="640" height="480" autoplay></video>
+        <video id="video" width="640" height="480" autoplay playsinline></video>
         <br>
         <button id="capture">Capturar Foto</button>
         <br><br>
@@ -43,15 +38,12 @@
         <br>
         <button id="analyze" class="hidden">Obter Resultado</button>
         <br><br>
-        <button id="analyzeAll">Analisar Todas as Fotos</button>
-        <div class="chart-container">
-            <canvas id="emotionChart" class="hidden"></canvas>
-        </div>
-        <br>
-        <button id="reload" class="hidden">Recarregar</button>
+        <button id="analyze-all">Analisar Todas as Fotos</button>
+        <div id="analysis-result" class="hidden"></div>
+        <br><br>
+        <button id="reload">Recarregar Página</button>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
@@ -61,14 +53,19 @@
         const progressDiv = document.getElementById('progress');
         const resultDiv = document.getElementById('result');
         const analyzeButton = document.getElementById('analyze');
-        const analyzeAllButton = document.getElementById('analyzeAll');
-        const emotionChart = document.getElementById('emotionChart');
+        const analyzeAllButton = document.getElementById('analyze-all');
+        const analysisResultDiv = document.getElementById('analysis-result');
         const reloadButton = document.getElementById('reload');
         let currentFilename = '';
 
         navigator.mediaDevices.getUserMedia({ video: true })
             .then(stream => {
                 video.srcObject = stream;
+            })
+            .catch(err => {
+                console.error('Erro ao acessar a câmera:', err);
+                progressDiv.textContent = 'Erro ao acessar a câmera. Por favor, verifique as permissões.';
+                progressDiv.classList.remove('hidden');
             });
 
         captureButton.addEventListener('click', () => {
@@ -143,41 +140,29 @@
 
         analyzeAllButton.addEventListener('click', () => {
             progressDiv.textContent = 'Analisando todas as fotos...';
-            progressDiv.classList.remove('hidden');
             fetch('/analyze-all')
                 .then(response => response.json())
                 .then(data => {
-                    const emotions = data.emotions;
-                    const labels = Object.keys(emotions);
-                    const counts = Object.values(emotions);
-                    const ctx = emotionChart.getContext('2d');
-                    new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: labels,
-                            datasets: [{
-                                label: 'Quantidade de Emoções',
-                                data: counts,
-                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                borderColor: 'rgba(75, 192, 192, 1)',
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            }
-                        }
-                    });
-                    emotionChart.classList.remove('hidden');
+                    if (data.results) {
+                        const results = data.results;
+                        const chartData = Object.keys(results).map(emotion => ({
+                            label: emotion,
+                            count: results[emotion]
+                        }));
+                        // Render the chart here using chartData
+                        // Example:
+                        analysisResultDiv.innerHTML = '';
+                        chartData.forEach(item => {
+                            analysisResultDiv.innerHTML += `<p>${item.label}: ${item.count}</p>`;
+                        });
+                    }
                     progressDiv.classList.add('hidden');
-                    reloadButton.classList.remove('hidden');
+                    analysisResultDiv.classList.remove('hidden');
                 })
                 .catch(error => {
                     console.error('Erro:', error);
                     progressDiv.textContent = 'Erro ao analisar todas as fotos.';
+                    progressDiv.classList.remove('hidden');
                 });
         });
 
