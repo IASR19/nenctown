@@ -60,6 +60,7 @@ def analyze_file(filename):
         emotion_pt = emotion_translation.get(emotion, emotion)
         return jsonify(emotion=emotion_pt)
     except Exception as e:
+        os.remove(filepath)  # Exclui o arquivo se ocorrer um erro
         return jsonify(error=str(e)), 500
 
 @app.route('/uploads/<filename>')
@@ -82,7 +83,7 @@ def analyze_all_files():
                 emotion_pt = emotion_translation.get(emotion, emotion)
                 emotions_count[emotion_pt] += 1
             except Exception as e:
-                return jsonify(error=str(e)), 500
+                os.remove(filepath)  # Exclui o arquivo se ocorrer um erro
     return jsonify(emotions=emotions_count)
 
 if __name__ == '__main__':
