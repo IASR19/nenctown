@@ -33,6 +33,10 @@ Este é um sistema de análise de emoções que permite aos usuários tirar foto
 
 Rodando em [http://127.0.0.1:5000](http://127.0.0.1:5000).
 
+4. **Ngrok é uma ferramenta que cria um túnel seguro de HTTP a partir de uma URL pública HTTPS para um servidor web rodando localmente.**
+    ```bash
+    ngrok http 5000
+    ```
 
 ## Funcionalidades
 
